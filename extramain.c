@@ -196,3 +196,220 @@ int main()
 
 
 //ZAD4
+#include "led.h"
+#include "keyboard.h"
+
+int iTimeDelay;
+int iStepCounter = 0;
+
+// tylko 2 stany
+enum LedState {STOP, RIGHT_DIRECTION};
+
+void Delay(int iMiliseconds)
+{
+    int iLoopIteration;
+    iTimeDelay = (iMiliseconds * 5456);
+    for(iLoopIteration = 0 ; iLoopIteration < iTimeDelay ; iLoopIteration++) {}
+}
+
+int main()
+{
+    // stan poczatkowy - punkt swietlny stoi w miejscu
+    enum LedState eLedState = STOP;
+    
+    LedInit();
+    KeyboardInit();
+
+    while(1)
+    {
+        switch(eLedState)
+        {
+            case STOP:
+                // warunek przejscia - nacisniecie S0/button0
+                if(eKeyboardRead() == BUTTON_0)
+                {
+                    eLedState = RIGHT_DIRECTION; // zmiana stanu na ruch
+                    iStepCounter = 0;            // reset licznika przed startem
+                }
+                // przejscie wsobne: jesli przycisk nie jest wcisniety - zostan w stop
+                else 
+                {
+                    eLedState = STOP; 
+                }
+                break;
+
+            case RIGHT_DIRECTION:
+                // waruenk przejścia wsobnego: wykonaliśmy mniej niż 3 kroki
+                if(iStepCounter < 3)
+                {
+                    LedStepRight();   // zrob krok
+                    iStepCounter++;  // zwieksz licznik
+                    eLedState = RIGHT_DIRECTION; // zostan w tym samym stanie
+                }
+                // warunek przejścia: wykonano 3 kroki - zatrzymaj sie
+                else
+                {
+                    eLedState = STOP; 
+                }
+                break;
+        }
+
+        Delay(250);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+//ZAD5
+#include "led.h"
+#include "keyboard.h"
+
+int iTimeDelay;
+
+// 2 stany
+enum LedState {STOP, RIGHT_DIRECTION};
+
+void Delay(int iMiliseconds)
+{
+    int iLoopIteration;
+    iTimeDelay = (iMiliseconds * 5456);
+    for(iLoopIteration = 0 ; iLoopIteration < iTimeDelay ; iLoopIteration++) {}
+}
+
+int main()
+{
+    // stan poczatkowy: PUNKT PRZESUWA SIE W PRAWO
+    enum LedState eLedState = RIGHT_DIRECTION;
+    
+    LedInit();
+    KeyboardInit();
+
+    while(1)
+    {
+        switch(eLedState)
+        {
+            case STOP:
+                // jesli juz zstoi a nacisnieto button1 - idz w prawo
+                if(eKeyboardRead() == BUTTON_1)
+                {
+                    eLedState = RIGHT_DIRECTION;
+                }
+                // przejscie wsobne: jeśli nie S1 stój dalej
+                else 
+                {
+                    eLedState = STOP;
+                }
+                break;
+
+            case RIGHT_DIRECTION:
+                //jesli nacisnieto button0 - zatrzymaj ruch
+                if(eKeyboardRead() == BUTTON_0)
+                {
+                    eLedState = STOP;
+                }
+                // przejscie wsobne: jeśli nie kazemy stac - rob krok i zostan w tym stanie
+                else 
+                {
+                    LedStepRight();
+                    eLedState = RIGHT_DIRECTION; 
+                }
+                break;
+        }
+
+        Delay(250);
+    }
+}
+
+
+
+
+
+
+
+//ZAD6
+#include "led.h"
+#include "keyboard.h"
+
+int iTimeDelay;
+
+// Definicja 3 stanów zgodnie z poleceniem
+enum LedState {STOP, LEFT_DIRECTION, RIGHT_DIRECTION};
+
+void Delay(int iMiliseconds)
+{
+    int iLoopIteration;
+    iTimeDelay = (iMiliseconds * 5456);
+    for(iLoopIteration = 0 ; iLoopIteration < iTimeDelay ; iLoopIteration++) {}
+}
+
+int main()
+{
+    // stan poczatkowy - punkt stoi
+    enum LedState eLedState = STOP;
+    
+    LedInit();
+    KeyboardInit();
+
+    while(1)
+    {
+        switch(eLedState)
+        {
+            case STOP:
+                if(eKeyboardRead() == BUTTON_0)
+                {
+                    eLedState = LEFT_DIRECTION;  // start w lewo (S0)
+                }
+                else if(eKeyboardRead() == BUTTON_2)
+                {
+                    eLedState = RIGHT_DIRECTION; // start w prawo (S2)
+                }
+                else 
+                {
+                    eLedState = STOP;            // przejscie wsobne
+                }
+                break;
+
+            case LEFT_DIRECTION:
+                if(eKeyboardRead() == BUTTON_1)
+                {
+                    eLedState = STOP;            // stop (S1)
+                }
+                else if(eKeyboardRead() == RELASED)
+                {
+                    LedStepLeft();               // ruch w lewo tylko gdy puszczony przycisk
+                    eLedState = LEFT_DIRECTION;  // przejscie wsobne
+                }
+                else 
+                {
+                    eLedState = LEFT_DIRECTION;  // przejscie wsobne (trzymanie przycisku)
+                }
+                break;
+
+            case RIGHT_DIRECTION:
+                if(eKeyboardRead() == BUTTON_1)
+                {
+                    eLedState = STOP;            // stop (S1)
+                }
+                else if(eKeyboardRead() == RELASED)
+                {
+                    LedStepRight();              // ruch w prawo tylko gdy puszczony przycisk
+                    eLedState = RIGHT_DIRECTION; // przejscie wsobne
+                }
+                else 
+                {
+                    eLedState = RIGHT_DIRECTION; // przejscie wsobne (trzymanie przycisku)
+                }
+                break;
+        }
+
+        // wywoalnie 10 razy na sekuned = 1000ms / 10 = 100ms
+        Delay(100); 
+    }
+}
